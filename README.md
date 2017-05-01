@@ -1,6 +1,8 @@
 # moscow-metro
 > Scalable vector moscow metro map
 
+[![NPM version](https://badge.fury.io/js/moscow_metro.svg)](https://www.npmjs.com/package/moscow_metro)
+
 ## Usage
 
 ```javascript
