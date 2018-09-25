@@ -11,8 +11,8 @@ class Engine {
         this.wheel = this.wheel.bind(this);
         this.zoomIn = this.zoomIn.bind(this);
         this.zoomOut = this.zoomOut.bind(this);
-        this.zoomInThrottled = helpers.throttle(this.zoomIn, 250);
-        this.zoomOutThrottled = helpers.throttle(this.zoomOut, 250);
+        this.zoomInThrottled = helpers.throttle(this.zoomIn, 150);
+        this.zoomOutThrottled = helpers.throttle(this.zoomOut, 150);
         this.toggle = this.toggle.bind(this);
         this.select = this.select.bind(this);
         this.deselect = this.deselect.bind(this);
@@ -57,8 +57,7 @@ class Engine {
     stationClick(station){
         let id = parseInt(station.getAttribute('data-id'), 10);
         let { name } = this.stations_by_id[id];
-        let select = !(this.state.selected.indexOf(id) >= 0);
-
+        let select = this.state.selected.indexOf(id) < 0;
         if (typeof (this.options.middleware) === 'function'){
             return this.options.middleware({ id, name, select }, () => this.toggle(id));
         }
@@ -141,45 +140,39 @@ class Engine {
     }
 
     select(id){
-        if (!this.options.selectable) return;
-        if (this.state.selected.indexOf(id) >= 0) return;
-        if (!id || isNaN(id)) return;
-
-        let s = this.stations.length;
-        let c = this.checks.length;
-        while (s--){
-            if (this.stations[s].id === id){
-                this.state.selected.push(id);
-                helpers.addClass(this.stations[s].element, 'selected');
+        if (!!id && this.options.selectable && this.state.selected.indexOf(id) < 0){
+            id = parseInt(id, 10);
+            for (let i = 0; i < this.stations.length; i++){
+                if (parseInt(this.stations[i].id, 10) === id){
+                    this.state.selected.push(id);
+                    helpers.addClass(this.stations[i].element, 'selected');
+                    break;
+                }
             }
-        }
-        if (this.options.check_icons){
-            while (c--){
-                if (this.checks[c].id === id){
-                    helpers.addClass(this.checks[c].element, 'selected');
+            if (!this.options.check_icons) return;
+            for (let i = 0; i < this.checks.length; i++){
+                if (parseInt(this.checks[i].id, 10) === id){
+                    helpers.addClass(this.checks[i].element, 'selected');
+                    break;
                 }
             }
         }
     }
 
     deselect(id){
-        let index = this.state.selected.indexOf(id);
-        if (this.options.selectable && index >= 0){
-            let s = this.stations.length;
-
-
-            let c = this.checks.length;
-            while (s--){
-                if (this.stations[s].id === id){
+        if (this.state.selected.indexOf(id) >= 0){
+            for (let i = 0; i < this.stations.length; i++){
+                if (parseInt(this.stations[i].id, 10) === id){
                     this.state.selected = this.state.selected.filter(_id => _id !== id);
-                    helpers.removeClass(this.stations[s].element, 'selected');
+                    helpers.removeClass(this.stations[i].element, 'selected');
+                    break;
                 }
             }
-            if (this.options.check_icons){
-                while (c--){
-                    if (this.checks[c].id === id){
-                        helpers.removeClass(this.checks[c].element, 'selected');
-                    }
+            if (!this.options.check_icons) return;
+            for (let i = 0; i < this.checks.length; i++) {
+                if (parseInt(this.checks[i].id, 10) === id) {
+                    helpers.removeClass(this.checks[i].element, 'selected');
+                    break;
                 }
             }
         }

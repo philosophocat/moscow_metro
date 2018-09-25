@@ -4,7 +4,7 @@ const hasClass = (el, classname) => {
 };
 
 const addClass = (el, classname) => {
-    if( hasClass(el, classname) ) return;
+    if (hasClass(el, classname)) return;
     let class_names = el.getAttribute('class') || '';
     el.setAttribute('class', (class_names + ' ' + classname).trim());
 };
@@ -38,18 +38,30 @@ const preventTextSelection = () => {
     }
 };
 
-const collectStations = () => {
-    return [];
-};
+const collectStations = (svg) => Array
+    .from(svg.getElementsByClassName('moscow_metro_map__station'))
+    .map(element => {
+        let id = parseInt(element.getAttribute('data-id'), 10);
+        let name = element.innerText || element.textContent;
+        name = name.split(' ').filter(chunk => chunk.length > 0).join(' ');
+        return { element, id, name };
+    });
 
-const collectChecks = () => {
-    return [];
-};
+const collectChecks = (svg) => Array
+    .from(svg.getElementsByClassName('moscow_metro_map__check'))
+    .map(element => {
+        let id = parseInt(element.getAttribute('data-id'), 10);
+        return { element, id };
+    });
 
 const throttle = (func, ms) => {
-    let isThrottled = false,
-        savedArgs,
-        savedThis;
+    let isThrottled = false;
+
+
+    let savedArgs;
+
+
+    let savedThis;
 
     function wrapper() {
         if (isThrottled) {
@@ -78,28 +90,12 @@ export default {
     preventTextSelection,
     collectStations,
     collectChecks,
-    throttle
+    throttle,
 };
 
 // export function collectStations(svg){
 //
-//     let items = svg.getElementsByClassName('moscow_metro_map__station'),
-//         left = items.length,
-//         stations = [];
-//
-//     // while( left-- ){
-//     //
-//     //     let element = items[left],
-//     //         id = parseInt(element.getAttribute('data-id')),
-//     //         name = collectName(element);
-//     //
-//     //     stations.push({element, id, name });
-//     //
-//     //     if( left === 0 ){
-//     //         return stations;
-//     //     }
-//     // }
-//     return stations;
+
 // }
 //
 // export function collectChecks(svg){

@@ -27,8 +27,8 @@ class Schema {
                 min: !!options.zoom && !!options.zoom.min ? parseInt(options.zoom.min, 10) : -7,
                 max: !!options.zoom && !!options.zoom.max ? parseInt(options.zoom.max, 10) : 7,
             },
-            selectable: !!options.selectable,
-            check_icons: !!options.check_icons,
+            selectable: typeof options.selectable === 'undefined' ? true : !!options.selectable,
+            check_icons: typeof options.check_icons === 'undefined' ? true : !!options.check_icons
         };
 
         this.container.innerHTML = svg;
