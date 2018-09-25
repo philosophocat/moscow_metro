@@ -1,19 +1,14 @@
-
-
 import Schema from './schema';
 
 (function(Map){
     // RequireJS
     if (typeof define === 'function' && define.amd){
-        define(Map);
-        return;
+        return define(Map);
     }
 
     // <script>
     if (typeof window !== 'undefined' || typeof self !== 'undefined'){
         var global = typeof window !== 'undefined' ? window : self;
-
-
         var previous = global.MoscowMetro;
         global.MoscowMetro = Map;
         global.MoscowMetro.noConflict = function() {

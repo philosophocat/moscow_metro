@@ -11,6 +11,8 @@ class Engine {
         this.wheel = this.wheel.bind(this);
         this.zoomIn = this.zoomIn.bind(this);
         this.zoomOut = this.zoomOut.bind(this);
+        this.zoomInThrottled = helpers.throttle(this.zoomIn, 250);
+        this.zoomOutThrottled = helpers.throttle(this.zoomOut, 250);
         this.toggle = this.toggle.bind(this);
         this.select = this.select.bind(this);
         this.deselect = this.deselect.bind(this);
@@ -127,8 +129,8 @@ class Engine {
         if (Boolean(e.deltaY) && !isNaN(e.deltaY)){
             e.preventDefault();
             e.deltaY > 0 ?
-                this.zoomOut() :
-                this.zoomIn();
+                this.zoomOutThrottled() :
+                this.zoomInThrottled();
         }
     }
 
