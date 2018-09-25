@@ -1,0 +1,21 @@
+{
+  "extends": [
+    "strongloop"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2017,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "modules": true
+    }
+  },
+  "rules": {
+    "indent": ["error", 4],
+    "max-len": [1, 100, 4]
+  },
+  "env": {
+    "es6": true,
+    "browser": true,
+    "amd": true
+  }
+}
