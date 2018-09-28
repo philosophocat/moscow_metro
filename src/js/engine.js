@@ -153,7 +153,6 @@ class Engine {
             for (let i = 0; i < this.checks.length; i++){
                 if (parseInt(this.checks[i].id, 10) === id){
                     helpers.addClass(this.checks[i].element, 'selected');
-                    break;
                 }
             }
         }
@@ -172,7 +171,6 @@ class Engine {
             for (let i = 0; i < this.checks.length; i++) {
                 if (parseInt(this.checks[i].id, 10) === id) {
                     helpers.removeClass(this.checks[i].element, 'selected');
-                    break;
                 }
             }
         }

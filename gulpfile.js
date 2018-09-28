@@ -31,19 +31,19 @@ gulp.task('js', done => gulp.src('./src/js/index.js')
 
 const titleMarkup = (s, x, y) => {
     let markup = '<text ';
-    if( s.monorail ){
+    if (s.monorail){
         markup += 'font-size="6" ';
     }
     markup += `transform="translate(${x} ${y})">`;
-    if( !!s.title_chunks ){
+    if (s.title_chunks){
         let title = s.title.split(' ');
-        for(let i = 0; i < s.title_chunks.length; i++){
+        for (let i = 0; i < s.title_chunks.length; i++){
             let chunk = s.title_chunks[i];
             let text = title.shift();
-            if( text.length <= 3 ){
+            if (text.length <= 3){
                 text += ' ' + title.shift();
             }
-            if( i === s.title_chunks.length - 1 && !!title.length){
+            if (i === s.title_chunks.length - 1 && !!title.length){
                 text += ' ' + title.join(' ');
             }
             markup += `<tspan x="${chunk.x}" y="${chunk.y}">${text}</tspan>`;
@@ -76,7 +76,7 @@ const substrateMarkup = (x, y) => {
 const stationMarkup = (markup = '', station) => {
     let { x, y } = station;
     markup += `<g class="moscow_metro_map__station" data-id="${station.id}">`;
-    markup += substrateMarkup(x, !!station.monorail ? y + 4 : y);
+    markup += substrateMarkup(x, station.monorail ? y + 4 : y);
     markup += areaMarkup(x, y);
     markup += titleMarkup(station, x, y);
     markup += '</g>';

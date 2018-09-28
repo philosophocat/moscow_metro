@@ -28,7 +28,7 @@ class Schema {
                 max: !!options.zoom && !!options.zoom.max ? parseInt(options.zoom.max, 10) : 7,
             },
             selectable: typeof options.selectable === 'undefined' ? true : !!options.selectable,
-            check_icons: typeof options.check_icons === 'undefined' ? true : !!options.check_icons
+            check_icons: typeof options.check_icons === 'undefined' ? true : !!options.check_icons,
         };
 
         this.container.innerHTML = svg;
@@ -58,23 +58,21 @@ class Schema {
 
     select(ids){
         if (typeof (ids) === 'number' || typeof (ids) === 'string'){
-            return this.engine.select(ids);
+            return this.engine.select(parseInt(ids, 10));
         }
 
         if (ids instanceof Array){
-            ids.forEach(this.engine.select);
+            ids.map(id => parseInt(id, 10)).forEach(this.engine.select);
         }
     }
 
     deselect(ids){
         if (typeof (ids) === 'number' || typeof (ids) === 'string'){
-            return this.engine.deselect(ids);
+            return this.engine.deselect(parseInt(ids, 10));
         }
 
         if (ids instanceof Array){
-            ids.forEach(id => {
-                this.engine.deselect(id);
-            });
+            ids.map(id => parseInt(id, 10)).forEach(this.engine.deselect);
         }
     }
 
