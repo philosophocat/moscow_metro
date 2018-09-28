@@ -62,6 +62,7 @@ class Engine {
             return this.options.middleware({ id, name, select }, () => this.toggle(id));
         }
         this.toggle(id);
+        setTimeout(helpers.preventTextSelection, 0);
     }
 
     mouseDown(e){
