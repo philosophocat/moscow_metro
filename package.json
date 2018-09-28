@@ -9,11 +9,12 @@
     "build": "NODE_ENV=production  ./node_modules/.bin/gulp build"
   },
   "keywords": [
-    "svg",
-    "vector",
+    "moscow_metro.js",
+    "metro",
     "moscow",
-    "motro",
-    "moscow_metro.js"
+    "underground",
+    "svg",
+    "vector"
   ],
   "dependencies": {
     "@babel/core": "^7.0.0-beta.54",
