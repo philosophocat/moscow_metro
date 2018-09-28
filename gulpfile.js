@@ -35,7 +35,7 @@ const titleMarkup = (s, x, y) => {
         markup += 'font-size="6" ';
     }
     markup += `transform="translate(${x} ${y})">`;
-    if (s.title_chunks){
+    if (!!s.title_chunks){
         let title = s.title.split(' ');
         for (let i = 0; i < s.title_chunks.length; i++){
             let chunk = s.title_chunks[i];
@@ -73,10 +73,27 @@ const substrateMarkup = (x, y) => {
     return markup;
 };
 
+const substrateCoords = station => {
+    let { x, y } = station;
+    let dx = 0;
+    let dy = 0;
+    if( station.monorail ){
+        dy = 4;
+    }
+    if(!!station.title_chunks){
+        for (let i = 0; i < station.title_chunks.length; i++){
+            if( station.title_chunks[i].x < dx){
+                dx = station.title_chunks[i].x;
+            }
+        }
+    }
+    return [x + dx, y + dy];
+};
+
 const stationMarkup = (markup = '', station) => {
     let { x, y } = station;
     markup += `<g class="moscow_metro_map__station" data-id="${station.id}">`;
-    markup += substrateMarkup(x, station.monorail ? y + 4 : y);
+    markup += substrateMarkup(...substrateCoords(station));
     markup += areaMarkup(x, y);
     markup += titleMarkup(station, x, y);
     markup += '</g>';
