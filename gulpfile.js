@@ -1,8 +1,8 @@
-const gulp = require('gulp');
 const fs = require('fs');
 const path = require('path');
+const gulp = require('gulp');
 const webpack_stream = require('webpack-stream');
-const Stations = require('./src/stations.json');
+const Stations = require('./src/stations.json').reverse();
 const is_production = process.env.NODE_ENV === 'production';
 
 gulp.task('js', done => gulp.src('./src/js/index.js')
@@ -29,39 +29,80 @@ gulp.task('js', done => gulp.src('./src/js/index.js')
     }))
     .pipe(gulp.dest('build')), error => { throw error; });
 
-gulp.task('map', done => {
-    const css = {
-        station: 'moscow_metro_map__station',
-        area: 'moscow_metro_map__area',
-        substrate: 'moscow_metro_map__substrate',
-        check: 'moscow_metro_map__check',
-    };
-
-    let stations = '';
-    for (let i = 0; i < Stations.length; i++){
-        let station = Stations[i];
-        let substrate_y = !!station.checks.length && station.checks[0].scale === 0.65 ? -5 : -10;
-        let x = station.x + (station.substrate_x || 0);
-        let y = station.y + substrate_y;
-        let translate = `translate(${x} ${y})`;
-        let area_translate = `translate(${x} ${y - 5})`;
-        stations += `<g class="${css.station}" data-id="${station.id}">`;
-        stations += `<rect transform="${translate}" width="1" height="1" class="${css.substrate}"></rect>`;
-        stations += `<rect transform="${area_translate}" width="1" height="1" class="${css.area}"></rect>`;
-        stations += station.name;
-        stations += '</g>';
-
-        for (let k = 0; k < station.checks.length; k++){
-            let check = station.checks[k];
-            stations += `<g class="${css.check}" `;
-            stations += `transform="translate(${check.x} ${check.y}), scale(${check.scale}, ${check.scale})" `;
-            stations += `data-id="${station.id}">`;
-            stations += '<polygon fill="#FFFFFF" points="8.1,15.1 16.2,7 14.7,5.5 8.1,12.1 5.2,9.2 3.7,10.7"/>';
-            stations += '<path fill="#6AC259" d="M10,0C4.5,0,0,4.5,0,10s4.5,10,10,10s10-4.5,10-10S15.5,0,10,0z M8.1,12.1l6.6-6.6L16.2,7l-8.1,8.1l-4.4-4.4l1.5-1.5L8.1,12.1z"/>';
-            stations += '</g>';
+const titleMarkup = (s, x, y) => {
+    let markup = '<text ';
+    if( s.monorail ){
+        markup += 'font-size="6" ';
+    }
+    markup += `transform="translate(${x} ${y})">`;
+    if( !!s.title_chunks ){
+        let title = s.title.split(' ');
+        for(let i = 0; i < s.title_chunks.length; i++){
+            let chunk = s.title_chunks[i];
+            let text = title.shift();
+            if( text.length <= 3 ){
+                text += ' ' + title.shift();
+            }
+            if( i === s.title_chunks.length - 1 && !!title.length){
+                text += ' ' + title.join(' ');
+            }
+            markup += `<tspan x="${chunk.x}" y="${chunk.y}">${text}</tspan>`;
         }
+    } else {
+        markup += s.title;
+    }
+    markup += '</text>';
+    return markup;
+};
+
+const areaMarkup = (x, y) => {
+    let markup = '<rect ';
+    markup += `transform="translate(${x} ${y - 5})" `;
+    markup += 'width="1" height="1" ';
+    markup += 'class="moscow_metro_map__area">';
+    markup += '</rect>';
+    return markup;
+};
+
+const substrateMarkup = (x, y) => {
+    let markup = '<rect ';
+    markup += `transform="translate(${x} ${y - 10})" `;
+    markup += 'width="1" height="1" ';
+    markup += 'class="moscow_metro_map__substrate">';
+    markup += '</rect>';
+    return markup;
+};
+
+const stationMarkup = (markup = '', station) => {
+    let { x, y } = station;
+    markup += `<g class="moscow_metro_map__station" data-id="${station.id}">`;
+    markup += substrateMarkup(x, !!station.monorail ? y + 4 : y);
+    markup += areaMarkup(x, y);
+    markup += titleMarkup(station, x, y);
+    markup += '</g>';
+
+    for (let k = 0; k < station.checks.length; k++){
+        let check = station.checks[k];
+        markup += '<g class="moscow_metro_map__check" ';
+        markup += `transform="translate(${check.x} ${check.y}), `;
+        markup += `scale(${check.scale}, ${check.scale})" `;
+        markup += `data-id="${station.id}">`;
+        markup += '<polygon fill="#FFFFFF" points="8.1,15.1 16.2,7 14.7,5.5 8.1,12.1 5.2,9.2 3.7,10.7"/>';
+        markup += '<path fill="#6AC259" d="M10,0C4.5,0,0,4.5,0,10s4.5,10,10,10s10-4.5,10-10S15.5,0,10,0z ';
+        markup += 'M8.1,12.1l6.6-6.6L16.2,7l-8.1,8.1l-4.4-4.4l1.5-1.5L8.1,12.1z"/>';
+        markup += '</g>';
     }
 
+    return markup;
+};
+
+/*
+ * We're using the map from the official site http://mosmetro.ru/metro-map/,
+ * cleaning station names substrates, parking signs
+ * and adding stations from json file
+ */
+
+gulp.task('map', done => {
     let svg = fs.readFileSync('src/map.svg', 'utf8');
     svg = 'export default \'' + svg
         .replace('<?xml version="1.0" encoding="UTF-8"?>', '')
@@ -71,17 +112,14 @@ gulp.task('map', done => {
         .replace(/<polygon id="white-base-(.*?)\/>/gi, '')
         .replace(/<path id="park-and-ride-(.*?)\/>/gi, '')
         .replace(/(\r\n|\n|\r)/gm, ' ')
-        .replace('	', ' ')
-        .replace('</svg>', stations)
+        .replace('</svg>', Stations.reduce(stationMarkup))
         .trim() + '</svg>\'';
-
     fs.writeFileSync('src/js/map.js', svg);
     done();
 });
 
 gulp.task('html', () => gulp.src('./src/html/*.html')
     .pipe(gulp.dest('./build')));
-
 
 gulp.task('dev', gulp.series('map', 'html', 'js'));
 gulp.task('build', gulp.series('dev'));
