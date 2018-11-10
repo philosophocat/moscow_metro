@@ -129,7 +129,7 @@ gulp.task('map', done => {
         .replace(/<polygon id="white-base-(.*?)\/>/gi, '')
         .replace(/<path id="park-and-ride-(.*?)\/>/gi, '')
         .replace(/(\r\n|\n|\r)/gm, ' ')
-        .replace('</svg>', Stations.reduce(stationMarkup))
+        .replace('</svg>', Stations.reduce(stationMarkup, 0))
         .trim() + '</svg>\'';
     fs.writeFileSync('src/js/map.js', svg);
     done();
