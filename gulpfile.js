@@ -122,8 +122,9 @@ const stationMarkup = (markup = '', station) => {
 gulp.task('map', done => {
     let svg = fs.readFileSync('src/map.svg', 'utf8');
     svg = 'export default \'' + svg
-        .replace('<?xml version="1.0" encoding="UTF-8"?>', '')
+        .replace('<?xml version="1.0" encoding="utf-8"?>', '')
         .replace('id="Layer_1"', 'class="moscow_metro_map"')
+        .replace(/<!--\s*(.*?)\s*-->/gi, '')
         .replace(/font-family(.*?);/gi, '')
         .replace(/<rect id="white-base-(.*?)\/>/gi, '')
         .replace(/<polygon id="white-base-(.*?)\/>/gi, '')
