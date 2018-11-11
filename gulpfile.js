@@ -35,7 +35,7 @@ const titleMarkup = (s, x, y) => {
         markup += 'font-size="6" ';
     }
     markup += `transform="translate(${x} ${y})">`;
-    if (!!s.title_chunks){
+    if (s.title_chunks){
         let title = s.title.split(' ');
         for (let i = 0; i < s.title_chunks.length; i++){
             let chunk = s.title_chunks[i];
@@ -77,12 +77,12 @@ const substrateCoords = station => {
     let { x, y } = station;
     let dx = 0;
     let dy = 0;
-    if( station.monorail ){
+    if (station.monorail){
         dy = 4;
     }
-    if(!!station.title_chunks){
+    if (station.title_chunks){
         for (let i = 0; i < station.title_chunks.length; i++){
-            if( station.title_chunks[i].x < dx){
+            if (station.title_chunks[i].x < dx){
                 dx = station.title_chunks[i].x;
             }
         }
@@ -104,9 +104,10 @@ const stationMarkup = (markup = '', station) => {
         markup += `transform="translate(${check.x} ${check.y}), `;
         markup += `scale(${check.scale}, ${check.scale})" `;
         markup += `data-id="${station.id}">`;
-        markup += '<polygon fill="#FFFFFF" points="8.1,15.1 16.2,7 14.7,5.5 8.1,12.1 5.2,9.2 3.7,10.7"/>';
-        markup += '<path fill="#6AC259" d="M10,0C4.5,0,0,4.5,0,10s4.5,10,10,10s10-4.5,10-10S15.5,0,10,0z ';
-        markup += 'M8.1,12.1l6.6-6.6L16.2,7l-8.1,8.1l-4.4-4.4l1.5-1.5L8.1,12.1z"/>';
+        markup += '<polygon fill="#FFFFFF" ';
+        markup += 'points="8.1,15.1 16.2,7 14.7,5.5 8.1,12.1 5.2,9.2 3.7,10.7"/>';
+        markup += '<path fill="#6AC259" d="M10,0C4.5,0,0,4.5,0,10s4.5,10,10,10s10-4.5,10-10S15.5,0';
+        markup += ',10,0z M8.1,12.1l6.6-6.6L16.2,7l-8.1,8.1l-4.4-4.4l1.5-1.5L8.1,12.1z"/>';
         markup += '</g>';
     }
 
@@ -122,14 +123,15 @@ const stationMarkup = (markup = '', station) => {
 gulp.task('map', done => {
     let svg = fs.readFileSync('src/map.svg', 'utf8');
     svg = 'export default \'' + svg
-        .replace('<?xml version="1.0" encoding="UTF-8"?>', '')
+        .replace('<?xml version="1.0" encoding="utf-8"?>', '')
         .replace('id="Layer_1"', 'class="moscow_metro_map"')
+        .replace(/<!--\s*(.*?)\s*-->/gi, '')
         .replace(/font-family(.*?);/gi, '')
         .replace(/<rect id="white-base-(.*?)\/>/gi, '')
         .replace(/<polygon id="white-base-(.*?)\/>/gi, '')
         .replace(/<path id="park-and-ride-(.*?)\/>/gi, '')
         .replace(/(\r\n|\n|\r)/gm, ' ')
-        .replace('</svg>', Stations.reduce(stationMarkup))
+        .replace('</svg>', Stations.reduce(stationMarkup, 0))
         .trim() + '</svg>\'';
     fs.writeFileSync('src/js/map.js', svg);
     done();
