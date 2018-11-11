@@ -1,7 +1,7 @@
 # moscow_metro
 > Scalable vector moscow metro map ([demo](https://philosophocat.github.io/moscow_metro/))
 
-[![NPM version](https://badge.fury.io/js/moscow_metro.svg)](https://www.npmjs.com/package/moscow_metro)
+[![npm version](https://badge.fury.io/js/moscow_metro.svg)](https://badge.fury.io/js/moscow_metro)
 
 ## Usage
 
