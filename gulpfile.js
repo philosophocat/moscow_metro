@@ -1,80 +1,144 @@
-'use strict';
+const fs = require('fs');
+const path = require('path');
+const gulp = require('gulp');
+const webpack_stream = require('webpack-stream');
+const Stations = require('./src/stations.json').reverse();
+const is_production = process.env.NODE_ENV === 'production';
 
-var fs =            require('fs');
-var gulp =          require('gulp');
-var connect =       require('gulp-connect');
-var watch =         require('gulp-watch');
-var uglify =        require('gulp-uglify');
-var del =           require('del');
-var sourcemaps =    require('gulp-sourcemaps');
-var gulpIf =        require('gulp-if');
-var browserify =    require('browserify');
-var babelify =      require('babelify');
-var watchify =      require('watchify');
-var source =        require('vinyl-source-stream');
-var buffer =        require('vinyl-buffer');
+gulp.task('js', done => gulp.src('./src/js/index.js')
+    .pipe(webpack_stream({
+        watch: !is_production,
+        mode: is_production ? 'production' : 'development',
+        entry: './src/js/index.js',
+        output: {
+            path: path.resolve(__dirname, 'build'),
+            publicPath: '/',
+            filename: 'moscow_metro.js',
+        },
+        module: {
+            rules: [
+                {
+                    test: /\.js$/,
+                    exclude: /node_modules/,
+                    use: {
+                        loader: 'babel-loader',
+                    },
+                },
+            ],
+        },
+    }))
+    .pipe(gulp.dest('build')), error => { throw error; });
 
-function isProduction(){
-    return process.env.NODE_ENV == 'production';
-}
+const titleMarkup = (s, x, y) => {
+    let markup = '<text ';
+    if (s.monorail){
+        markup += 'font-size="6" ';
+    }
+    markup += `transform="translate(${x} ${y})">`;
+    if (s.title_chunks){
+        let title = s.title.split(' ');
+        for (let i = 0; i < s.title_chunks.length; i++){
+            let chunk = s.title_chunks[i];
+            let text = title.shift();
+            if (text.length <= 3){
+                text += ' ' + title.shift();
+            }
+            if (i === s.title_chunks.length - 1 && !!title.length){
+                text += ' ' + title.join(' ');
+            }
+            markup += `<tspan x="${chunk.x}" y="${chunk.y}">${text}</tspan>`;
+        }
+    } else {
+        markup += s.title;
+    }
+    markup += '</text>';
+    return markup;
+};
 
-gulp.task('clean', function(){
-    return del(['moscow_metro.js', 'moscow_metro.js.map']);
-});
+const areaMarkup = (x, y) => {
+    let markup = '<rect ';
+    markup += `transform="translate(${x} ${y - 5})" `;
+    markup += 'width="1" height="1" ';
+    markup += 'class="moscow_metro_map__area">';
+    markup += '</rect>';
+    return markup;
+};
 
-gulp.task('testcafe_server', function(){
-    connect.server({
-        port: 3000
-    });
-    // run some headless tests with phantomjs
-    // when process exits:
-    //connect.serverClose();
-});
+const substrateMarkup = (x, y) => {
+    let markup = '<rect ';
+    markup += `transform="translate(${x} ${y - 10})" `;
+    markup += 'width="1" height="1" ';
+    markup += 'class="moscow_metro_map__substrate">';
+    markup += '</rect>';
+    return markup;
+};
 
-function JS(watch) {
+const substrateCoords = station => {
+    let { x, y } = station;
+    let dx = 0;
+    let dy = 0;
+    if (station.monorail){
+        dy = 4;
+    }
+    if (station.title_chunks){
+        for (let i = 0; i < station.title_chunks.length; i++){
+            if (station.title_chunks[i].x < dx){
+                dx = station.title_chunks[i].x;
+            }
+        }
+    }
+    return [x + dx, y + dy];
+};
 
-    var bundler = browserify('./src/index.js',
-        {
-            cache: {},
-            packageCache: {},
-            debug: true
-        })
-            .transform(babelify, {
-                presets: ["es2015"],
-                sourceMaps: true
-            }),
-        go = function() {
-            return bundler.bundle()
-                .on('error', function (err) {
-                    console.error(err);
-                    this.emit('end');
-                })
-                .pipe(source('moscow_metro.js'))
-                .pipe(buffer())
-                .pipe(gulpIf(!isProduction(), sourcemaps.init({ loadMaps: true })))
-                .pipe(gulpIf(!isProduction(), sourcemaps.write('./')))
-                .pipe(gulpIf(isProduction(), uglify()))
-                .pipe(gulp.dest('./'))
-                .on('end', function(){
-                    console.log('Bundled..');
-                });
-        };
+const stationMarkup = (markup = '', station) => {
+    let { x, y } = station;
+    markup += `<g class="moscow_metro_map__station" data-id="${station.id}">`;
+    markup += substrateMarkup(...substrateCoords(station));
+    markup += areaMarkup(x, y);
+    markup += titleMarkup(station, x, y);
+    markup += '</g>';
 
-    if(watch){
-        bundler = watchify(bundler);
-        bundler.on('update', go);
+    for (let k = 0; k < station.checks.length; k++){
+        let check = station.checks[k];
+        markup += '<g class="moscow_metro_map__check" ';
+        markup += `transform="translate(${check.x} ${check.y}), `;
+        markup += `scale(${check.scale}, ${check.scale})" `;
+        markup += `data-id="${station.id}">`;
+        markup += '<polygon fill="#FFFFFF" ';
+        markup += 'points="8.1,15.1 16.2,7 14.7,5.5 8.1,12.1 5.2,9.2 3.7,10.7"/>';
+        markup += '<path fill="#6AC259" d="M10,0C4.5,0,0,4.5,0,10s4.5,10,10,10s10-4.5,10-10S15.5,0';
+        markup += ',10,0z M8.1,12.1l6.6-6.6L16.2,7l-8.1,8.1l-4.4-4.4l1.5-1.5L8.1,12.1z"/>';
+        markup += '</g>';
     }
 
-    return go();
-}
+    return markup;
+};
 
-gulp.task('js', function(){
-    return JS(false);
+/*
+ * We're using the map from the official site http://mosmetro.ru/metro-map/,
+ * cleaning station names substrates, parking signs
+ * and adding stations from json file
+ */
+
+gulp.task('map', done => {
+    let svg = fs.readFileSync('src/map.svg', 'utf8');
+    svg = 'export default \'' + svg
+        .replace('<?xml version="1.0" encoding="utf-8"?>', '')
+        .replace('id="Layer_1"', 'class="moscow_metro_map"')
+        .replace(/<!--\s*(.*?)\s*-->/gi, '')
+        .replace(/font-family(.*?);/gi, '')
+        .replace(/<rect id="white-base-(.*?)\/>/gi, '')
+        .replace(/<polygon id="white-base-(.*?)\/>/gi, '')
+        .replace(/<path id="park-and-ride-(.*?)\/>/gi, '')
+        .replace(/(\r\n|\n|\r)/gm, ' ')
+        .replace('</svg>', Stations.reduce(stationMarkup, 0))
+        .trim() + '</svg>\'';
+    fs.writeFileSync('src/js/map.js', svg);
+    done();
 });
 
-gulp.task('watch', function(){
-    JS(true);
-});
+gulp.task('html', () => gulp.src('./src/html/*.html')
+    .pipe(gulp.dest('./build')));
 
-gulp.task('build', gulp.series('clean', 'js'));
-gulp.task('dev', gulp.series('build', 'watch'));
+gulp.task('dev', gulp.series('map', 'html', 'js'));
+gulp.task('build', gulp.series('dev'));
