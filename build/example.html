@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Moscow metro map</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto&amp;subset=cyrillic" rel="stylesheet">
+    <script type="text/javascript" src="moscow_metro.js"></script>
+    <script type="text/javascript">
+        window.onload = function(){
+            window.map = new MoscowMetro(document.body);
+            setTimeout(function(){
+                document.body.setAttribute('class', 'ready');
+            }, 0);
+        }
+    </script>
+    <style>
+        body, html{margin:0;padding:0;display:block;height:100%;width:100%;font-family:"Roboto", sans-serif;overflow:hidden;}
+        body{opacity:0;transition:opacity 0.8s;}
+        body.ready{opacity:1;}
+        .moscow_metro_map{cursor:-webkit-grab;cursor:grab;transition:opacity 0.5s;font-size:0.7em;}
+        .moscow_metro_map.drag{cursor:-webkit-grabbing;cursor:grabbing;}
+        .moscow_metro_map__station{position:relative;display:block;cursor:pointer;}
+        .moscow_metro_map__substrate{fill:rgba(255,255,255,0.6);}
+        .moscow_metro_map__area{fill:rgba(255,255,255,0);}
+        .moscow_metro_map__station text{color:#333333;}
+        .selected .moscow_metro_map__substrate{fill:rgba(255,205,30,0.5)}
+        .moscow_metro_map__check{opacity:0;transition:0.2s;}
+        .moscow_metro_map__check.selected{opacity:1;}
+    </style>
+</head>
+<body>
+</body>
+</html>

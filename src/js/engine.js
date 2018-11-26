@@ -202,7 +202,7 @@ class Engine {
 
     getSelected(){
         return this.stations
-            .filter(station => this.state.selected.indexOf(station.id.toString()) >= 0)
+            .filter(station => this.state.selected.indexOf(station.id) >= 0)
             .map(station => {
                 let { id, name } = station;
                 return { id, name };
