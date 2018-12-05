@@ -1,3 +1,5 @@
+const Stations = require('../stations.json').reverse();
+
 const hasClass = (el, classname) => {
     let class_names = el.getAttribute('class') || '';
     return class_names.split(' ').indexOf(classname) >= 0;
@@ -38,14 +40,18 @@ const preventTextSelection = () => {
     }
 };
 
-const collectStations = (svg) => Array
-    .from(svg.getElementsByClassName('moscow_metro_map__station'))
-    .map(element => {
-        let id = parseInt(element.getAttribute('data-id'), 10);
-        let name = element.innerText || element.textContent;
-        name = name.split(' ').filter(chunk => chunk.length > 0).join(' ');
-        return { element, id, name };
-    });
+const collectStations = (svg) => {
+    return Array.from(svg.getElementsByClassName('moscow_metro_map__station'))
+        .map(element => {
+            let id = parseInt(element.getAttribute('data-id'), 10);
+            let name = Stations.find(x => x.id === id).title;
+            return {
+                element,
+                id,
+                name,
+            };
+        });
+};
 
 const collectChecks = (svg) => Array
     .from(svg.getElementsByClassName('moscow_metro_map__check'))
