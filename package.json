@@ -1,6 +1,6 @@
 {
   "name": "moscow_metro",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Scalable vector moscow metro map",
   "main": "build/moscow_metro.js",
   "scripts": {
@@ -16,7 +16,7 @@
     "svg",
     "vector"
   ],
-  "dependencies": {
+  "devDependencies": {
     "@babel/core": "^7.0.0-beta.54",
     "@babel/preset-env": "^7.0.0-beta.54",
     "babel-loader": "^8.0.0-beta.4",
