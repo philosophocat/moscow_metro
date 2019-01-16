@@ -1,6 +1,6 @@
 {
   "name": "moscow_metro",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Scalable vector moscow metro map",
   "main": "build/moscow_metro.js",
   "scripts": {
