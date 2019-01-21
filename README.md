@@ -7,19 +7,22 @@
 
 ```javascript
 
-    let container = document.body;
-    let options = {
+    const container = document.body;
+    const options = {
         selectable: false,  // default true
         check_icons: false, // default true
+        parking: false,     // default true
+        legend: false,      // default true
+        river: false,       // default true
         zoom: {
             k: 1.5,         // default 1.25,
             min: -5,        // default -7
             max: 5          // default 7
         }
     };
-    let map = new MoscowMetro(container, options);
+    const map = new MoscowMetro(container, options);
     
-    // middleware
+    // middleware, fires on every station click
     map.use((station, next) => {
         // do something
         next();

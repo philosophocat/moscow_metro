@@ -1,12 +1,11 @@
 {
   "name": "moscow_metro",
-  "version": "2.0.2",
+  "version": "2.1.3",
   "description": "Scalable vector moscow metro map",
   "main": "build/moscow_metro.js",
   "scripts": {
-    "lint": "eslint . --fix",
-    "dev": "NODE_ENV=development  ./node_modules/.bin/gulp dev",
-    "build": "NODE_ENV=production  ./node_modules/.bin/gulp build"
+    "lint": "./node_modules/.bin/tslint -c tslint.json 'src/**/*.ts'",
+    "build": "node src/map/handler && NODE_ENV=production webpack"
   },
   "keywords": [
     "moscow_metro.js",
@@ -16,21 +15,19 @@
     "svg",
     "vector"
   ],
-  "devDependencies": {
-    "@babel/core": "^7.0.0-beta.54",
-    "@babel/preset-env": "^7.0.0-beta.54",
-    "babel-loader": "^8.0.0-beta.4",
-    "babel-core": "^7.0.0-bridge.0",
-    "eslint": "^5.5.0",
-    "eslint-config-strongloop": "^2.1.0",
-    "gulp": "^4.0.0",
-    "webpack-stream": "^5.0.0"
-  },
   "author": "Viacheslav Sergeev <philosophocat@ya.ru>",
   "homepage": "https://github.com/philosophocat/moscow_metro",
   "repository": {
     "type": "git",
     "url": "http://github.com/philosophocat/moscow_metro.git"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^10.12.18",
+    "ts-loader": "^5.3.3",
+    "tslint": "^5.12.1",
+    "typescript": "^3.2.4",
+    "webpack": "^4.28.4",
+    "webpack-cli": "^3.2.1"
+  }
 }

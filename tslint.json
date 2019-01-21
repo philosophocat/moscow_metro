@@ -1,0 +1,20 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:recommended"
+    ],
+    "linterOptions": {
+        "exclude": [
+            "src/app/map.ts"
+        ]
+    },
+    "jsRules": {},
+    "rules": {
+        "quotemark": [true, "single", "avoid-escape", "avoid-template"],
+        "interface-name": [true, "never-prefix"],
+        "object-literal-sort-keys": [false],
+        "semicolon": [true, "always"],
+        "member-ordering": [false]
+    },
+    "rulesDirectory": []
+}
